@@ -1,37 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Supervisor Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PickWise AI — Supervisor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
-<body class="p-8">
-  <h1 class="text-2xl font-bold mb-4">Supervisor Dashboard</h1>
+<body class="bg-gray-50 min-h-screen">
 
-  <form id="uploadForm" class="mb-4">
-    <input type="file" id="csvFile" accept=".csv" class="border p-2">
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Import Orders</button>
-  </form>
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+          <span class="text-white font-bold text-sm">PW</span>
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-gray-900 leading-tight">PickWise AI</h1>
+          <p class="text-xs text-gray-500 leading-tight hidden sm:block">Optimasi Rute Picking Gudang</p>
+        </div>
+      </div>
+      <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">Supervisor</span>
+    </div>
+  </header>
 
-  <button id="optimizeBtn" class="bg-green-500 text-white px-4 py-2 rounded mb-4">Optimize Routes</button>
+  <main class="max-w-6xl mx-auto px-6 py-8">
 
-  <div id="result" class="mt-4"></div>
+    <!-- Page Title -->
+    <div class="mb-6">
+      <p class="text-xs text-blue-600 uppercase tracking-wider font-semibold mb-1">Dashboard Supervisor</p>
+      <h2 class="text-2xl font-bold text-gray-900">Pengawasan & Optimasi Rute</h2>
+      <p class="text-sm text-gray-500 mt-1">Kendali antrean picking multi-zona berbasis heuristik batching dan routing.</p>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm text-gray-500">Total Pesanan</p>
+            <p id="statOrders" class="text-3xl font-bold text-gray-900 mt-1">—</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm text-gray-500">Picker Aktif</p>
+            <p id="statPickers" class="text-3xl font-bold text-gray-900 mt-1">—</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm text-gray-500">Confidence Score</p>
+            <p id="statConfidence" class="text-3xl font-bold text-green-600 mt-1">—</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Panel Kontrol</h3>
+        <p class="text-sm text-gray-500">Unggah batch CSV dan jalankan optimasi rute.</p>
+      </div>
+      <form id="uploadForm" class="flex flex-wrap gap-3 items-center">
+        <input type="file" id="csvFile" accept=".csv" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 file:text-sm">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Import Orders
+        </button>
+        <button type="button" id="optimizeBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Optimize Routes
+        </button>
+      </form>
+      <p id="statusMsg" class="text-sm mt-3"></p>
+    </div>
+
+    <!-- Result Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="p-6 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900">Rute per Picker</h3>
+        <p class="text-sm text-gray-500">Hasil optimasi urutan picking berdasarkan kedekatan bin.</p>
+      </div>
+      <div id="result" class="overflow-x-auto p-6">
+        <p class="text-sm text-gray-400">Belum ada data. Import CSV dan klik Optimize Routes.</p>
+      </div>
+    </div>
+
+  </main>
 
   <script>
-    document.getElementById('uploadForm').onsubmit = async (e) => {
+    const uploadForm = document.getElementById('uploadForm');
+    const optimizeBtn = document.getElementById('optimizeBtn');
+    const statusMsg = document.getElementById('statusMsg');
+
+    uploadForm.onsubmit = async (e) => {
       e.preventDefault();
       const fileInput = document.getElementById('csvFile');
+      if (!fileInput.files[0]) {
+        statusMsg.textContent = 'Pilih file CSV terlebih dahulu.';
+        statusMsg.className = 'text-sm mt-3 text-red-600';
+        return;
+      }
       const formData = new FormData();
       formData.append('file', fileInput.files[0]);
-      const res = await fetch('/orders/import', { method: 'POST', body: formData });
-      const data = await res.json();
-      alert('Imported: ' + data.count + ' orders');
+      statusMsg.textContent = 'Mengimpor...';
+      statusMsg.className = 'text-sm mt-3 text-gray-500';
+
+      try {
+        const res = await fetch('/orders/import', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Gagal import');
+        statusMsg.textContent = `Berhasil import ${data.count} orders.`;
+        statusMsg.className = 'text-sm mt-3 text-green-600';
+        document.getElementById('statOrders').textContent = data.count;
+      } catch (err) {
+        statusMsg.textContent = err.message;
+        statusMsg.className = 'text-sm mt-3 text-red-600';
+      }
     };
 
-    document.getElementById('optimizeBtn').onclick = async () => {
-      const res = await fetch('/optimize', { method: 'POST' });
-      const data = await res.json();
-      document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+    optimizeBtn.onclick = async () => {
+      statusMsg.textContent = 'Mengoptimasi rute...';
+      statusMsg.className = 'text-sm mt-3 text-gray-500';
+      try {
+        const res = await fetch('/optimize', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Gagal optimize');
+        renderResult(data);
+        statusMsg.textContent = `Optimasi selesai. ${data.tasks.length} task dihasilkan.`;
+        statusMsg.className = 'text-sm mt-3 text-green-600';
+        document.getElementById('statConfidence').textContent = data.confidence.toFixed(2);
+        document.getElementById('statPickers').textContent = 2;
+      } catch (err) {
+        statusMsg.textContent = err.message;
+        statusMsg.className = 'text-sm mt-3 text-red-600';
+      }
     };
+
+    function renderResult(data) {
+      const tasks = data.tasks;
+      if (!tasks.length) {
+        document.getElementById('result').innerHTML = '<p class="text-sm text-gray-400">Tidak ada task.</p>';
+        return;
+      }
+      const rows = tasks.map(t => `
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="py-2.5 px-3 text-sm font-medium text-blue-600">#${t.task_id}</td>
+          <td class="py-2.5 px-3 text-sm">${t.sku}</td>
+          <td class="py-2.5 px-3 text-sm"><span class="bg-gray-100 px-2 py-0.5 rounded text-xs font-medium">${t.bin_location}</span></td>
+          <td class="py-2.5 px-3 text-sm">Picker ${t.picker_id}</td>
+          <td class="py-2.5 px-3 text-sm">
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${t.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+              ${t.status}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('result').innerHTML = `
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-gray-200">
+              <th class="py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Task</th>
+              <th class="py-2 px-3 text-xs font-semibold text-gray-500 uppercase">SKU</th>
+              <th class="py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Bin</th>
+              <th class="py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Picker</th>
+              <th class="py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
   </script>
 </body>
 </html>
