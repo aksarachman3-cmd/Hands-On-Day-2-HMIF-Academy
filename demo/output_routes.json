@@ -7,6 +7,7 @@
       "order_id": "1",
       "sku": "SKU001",
       "bin_location": "A1",
+      "qty": "2",
       "sequence": 1,
       "status": "pending"
     },
@@ -16,6 +17,7 @@
       "order_id": "3",
       "sku": "SKU003",
       "bin_location": "A1",
+      "qty": "3",
       "sequence": 2,
       "status": "pending"
     },
@@ -25,6 +27,7 @@
       "order_id": "4",
       "sku": "SKU004",
       "bin_location": "C3",
+      "qty": "1",
       "sequence": 3,
       "status": "pending"
     },
@@ -34,9 +37,17 @@
       "order_id": "2",
       "sku": "SKU002",
       "bin_location": "B2",
+      "qty": "1",
       "sequence": 4,
       "status": "pending"
     }
   ],
-  "confidence": 0.75
+  "confidence": 0.33,
+  "velocity": {
+    "SKU001": 1,
+    "SKU002": 1,
+    "SKU003": 1,
+    "SKU004": 1
+  },
+  "affinity_pairs": 0
 }
