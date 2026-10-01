@@ -6,9 +6,10 @@
       "picker_id": 1,
       "order_id": "1",
       "sku": "SKU001",
-      "bin_location": "A1",
+      "bin_location": "A-01-02",
       "qty": "2",
       "sequence": 1,
+      "batch": 1,
       "status": "pending"
     },
     {
@@ -16,9 +17,10 @@
       "picker_id": 1,
       "order_id": "3",
       "sku": "SKU003",
-      "bin_location": "A1",
+      "bin_location": "A-01-02",
       "qty": "3",
       "sequence": 2,
+      "batch": 1,
       "status": "pending"
     },
     {
@@ -26,9 +28,10 @@
       "picker_id": 1,
       "order_id": "4",
       "sku": "SKU004",
-      "bin_location": "C3",
+      "bin_location": "C-03-04",
       "qty": "1",
       "sequence": 3,
+      "batch": 1,
       "status": "pending"
     },
     {
@@ -36,18 +39,22 @@
       "picker_id": 2,
       "order_id": "2",
       "sku": "SKU002",
-      "bin_location": "B2",
+      "bin_location": "B-02-01",
       "qty": "1",
       "sequence": 4,
+      "batch": 1,
       "status": "pending"
     }
   ],
-  "confidence": 0.33,
+  "confidence": 0.85,
   "velocity": {
     "SKU001": 1,
     "SKU002": 1,
     "SKU003": 1,
     "SKU004": 1
   },
-  "affinity_pairs": 0
+  "affinity_pairs": 0,
+  "total_distance": 8.91,
+  "warnings": [],
+  "fallback": false
 }

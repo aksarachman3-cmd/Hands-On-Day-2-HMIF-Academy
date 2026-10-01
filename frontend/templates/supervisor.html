@@ -38,7 +38,7 @@
     </div>
 
     <!-- Stat Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
       <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div class="flex justify-between items-start">
           <div>
@@ -59,6 +59,18 @@
           </div>
           <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
             <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm text-gray-500">Total Jarak</p>
+            <p id="statDistance" class="text-3xl font-bold text-blue-600 mt-1">—</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
           </div>
         </div>
       </div>
@@ -96,11 +108,19 @@
       <p id="statusMsg" class="text-sm mt-3"></p>
     </div>
 
+    <!-- Warning Banner -->
+    <div id="warningBox" class="hidden bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-xl mb-6 text-sm"></div>
+
     <!-- Result Table -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="p-6 border-b border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-900">Rute per Picker</h3>
-        <p class="text-sm text-gray-500">Hasil optimasi urutan picking berdasarkan kedekatan bin.</p>
+      <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">Rute per Picker</h3>
+          <p class="text-sm text-gray-500">Hasil optimasi urutan picking berdasarkan Greedy Nearest Neighbor.</p>
+        </div>
+        <div id="distanceBadge" class="hidden text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium">
+          Total jarak: <span id="distanceValue">—</span> unit
+        </div>
       </div>
       <div id="result" class="overflow-x-auto p-6">
         <p class="text-sm text-gray-400">Belum ada data. Import CSV dan klik Optimize Routes.</p>
@@ -113,7 +133,11 @@
     const uploadForm = document.getElementById('uploadForm');
     const optimizeBtn = document.getElementById('optimizeBtn');
     const statusMsg = document.getElementById('statusMsg');
+    const warningBox = document.getElementById('warningBox');
+    const distanceBadge = document.getElementById('distanceBadge');
+    const distanceValue = document.getElementById('distanceValue');
 
+    // Import
     uploadForm.onsubmit = async (e) => {
       e.preventDefault();
       const fileInput = document.getElementById('csvFile');
@@ -130,7 +154,7 @@
       try {
         const res = await fetch('/orders/import', { method: 'POST', body: formData });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Gagal import');
+        if (!res.ok) throw new Error(data.error || data.detail || 'Gagal import');
         statusMsg.textContent = `Berhasil import ${data.count} orders.`;
         statusMsg.className = 'text-sm mt-3 text-green-600';
         document.getElementById('statOrders').textContent = data.count;
@@ -140,35 +164,55 @@
       }
     };
 
+    // Optimize
     optimizeBtn.onclick = async () => {
       statusMsg.textContent = 'Mengoptimasi rute...';
       statusMsg.className = 'text-sm mt-3 text-gray-500';
+      warningBox.classList.add('hidden');
+      warningBox.innerHTML = '';
+
       try {
         const res = await fetch('/optimize', { method: 'POST' });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Gagal optimize');
+
         renderResult(data);
+
         statusMsg.textContent = `Optimasi selesai. ${data.tasks.length} task dihasilkan.`;
         statusMsg.className = 'text-sm mt-3 text-green-600';
         document.getElementById('statConfidence').textContent = data.confidence.toFixed(2);
         document.getElementById('statPickers').textContent = 2;
+        document.getElementById('statDistance').textContent = data.total_distance;
+
+        // Warnings
+        if (data.warnings && data.warnings.length) {
+          warningBox.innerHTML = '<strong>Peringatan:</strong><br>' + data.warnings.join('<br>');
+          warningBox.classList.remove('hidden');
+        }
+
+        // Distance badge
+        distanceValue.textContent = data.total_distance;
+        distanceBadge.classList.remove('hidden');
+
       } catch (err) {
         statusMsg.textContent = err.message;
         statusMsg.className = 'text-sm mt-3 text-red-600';
       }
     };
 
+    // Render
     function renderResult(data) {
       const tasks = data.tasks;
       if (!tasks.length) {
         document.getElementById('result').innerHTML = '<p class="text-sm text-gray-400">Tidak ada task.</p>';
         return;
       }
+
       const rows = tasks.map(t => `
         <tr class="border-b border-gray-100 hover:bg-gray-50">
           <td class="py-2.5 px-3 text-sm font-medium text-blue-600">#${t.task_id}</td>
           <td class="py-2.5 px-3 text-sm">${t.sku}</td>
-          <td class="py-2.5 px-3 text-sm"><span class="bg-gray-100 px-2 py-0.5 rounded text-xs font-medium">${t.bin_location}</span></td>
+          <td class="py-2.5 px-3 text-sm"><span class="bg-gray-100 px-2 py-0.5 rounded text-xs font-medium font-mono">${t.bin_location}</span></td>
           <td class="py-2.5 px-3 text-sm">Picker ${t.picker_id}</td>
           <td class="py-2.5 px-3 text-sm">
             <span class="px-2 py-1 rounded-full text-xs font-medium ${t.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
@@ -177,6 +221,7 @@
           </td>
         </tr>
       `).join('');
+
       document.getElementById('result').innerHTML = `
         <table class="w-full text-left">
           <thead>

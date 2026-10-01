@@ -41,10 +41,16 @@ async def import_orders(file: UploadFile = File(...)):
         reader = csv.DictReader(io.StringIO(content.decode("utf-8")))
         rows = list(reader)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"error": f"Gagal membaca CSV: {str(e)}"})
+        return JSONResponse(
+            status_code=400,
+            content={"error": f"Gagal membaca CSV: {str(e)}"}
+        )
 
     if not rows:
-        return JSONResponse(status_code=400, content={"error": "File CSV kosong"})
+        return JSONResponse(
+            status_code=400,
+            content={"error": "File CSV kosong"}
+        )
 
     required = {'order_id', 'sku', 'bin_location', 'qty'}
     if not required.issubset(rows[0].keys()):
@@ -71,7 +77,10 @@ async def optimize():
             "tasks": tasks,
             "confidence": result["confidence"],
             "velocity": result["velocity"],
-            "affinity_pairs": result["affinity_pairs"]
+            "affinity_pairs": result["affinity_pairs"],
+            "total_distance": result["total_distance"],
+            "warnings": result.get("warnings", []),
+            "fallback": result.get("fallback", False)
         }
     except ValueError as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
@@ -89,7 +98,10 @@ async def complete_task(task_id: int):
         if t["task_id"] == task_id:
             t["status"] = "completed"
             return {"status": "ok", "task_id": task_id}
-    return JSONResponse(status_code=404, content={"error": "Task not found"})
+    return JSONResponse(
+        status_code=404,
+        content={"error": "Task not found"}
+    )
 
 
 # ---------------- Frontend Pages ----------------
@@ -105,7 +117,10 @@ async def root(request: Request):
 
 @app.get("/supervisor", response_class=HTMLResponse)
 async def supervisor_page(request: Request):
-    return templates.TemplateResponse(request=request, name="supervisor.html")
+    return templates.TemplateResponse(
+        request=request,
+        name="supervisor.html"
+    )
 
 
 @app.get("/picker/{picker_id}", response_class=HTMLResponse)
