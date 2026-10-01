@@ -1,0 +1,5 @@
+order_id,sku,bin_location,qty
+1,SKU001,A1,2
+2,SKU002,B2,1
+3,SKU003,A1,3
+4,SKU004,C3,1

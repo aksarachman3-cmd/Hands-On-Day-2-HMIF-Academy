@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Picker Tasks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+  <h1 class="text-2xl font-bold mb-4">Picker Tasks</h1>
+  <div id="tasks"></div>
+
+  <script>
+    const pickerId = {{ picker_id }};
+    async function loadTasks() {
+      const res = await fetch(`/picker/${pickerId}/tasks`);
+      const tasks = await res.json();
+      const container = document.getElementById('tasks');
+      container.innerHTML = tasks.map(t => `
+        <div class="border p-4 mb-2">
+          <p><strong>Task ${t.task_id}</strong>: ${t.sku} at ${t.bin_location}</p>
+          <button onclick="completeTask(${t.task_id})" class="bg-blue-500 text-white px-2 py-1 rounded">Complete</button>
+        </div>
+      `).join('');
+    }
+
+    async function completeTask(id) {
+      await fetch(`/tasks/${id}/complete`, { method: 'POST' });
+      loadTasks();
+    }
+
+    loadTasks();
+  </script>
+</body>
+</html>

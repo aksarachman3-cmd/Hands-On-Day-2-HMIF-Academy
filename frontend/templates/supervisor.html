@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Supervisor Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+  <h1 class="text-2xl font-bold mb-4">Supervisor Dashboard</h1>
+
+  <form id="uploadForm" class="mb-4">
+    <input type="file" id="csvFile" accept=".csv" class="border p-2">
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Import Orders</button>
+  </form>
+
+  <button id="optimizeBtn" class="bg-green-500 text-white px-4 py-2 rounded mb-4">Optimize Routes</button>
+
+  <div id="result" class="mt-4"></div>
+
+  <script>
+    document.getElementById('uploadForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('csvFile');
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      const res = await fetch('/orders/import', { method: 'POST', body: formData });
+      const data = await res.json();
+      alert('Imported: ' + data.count + ' orders');
+    };
+
+    document.getElementById('optimizeBtn').onclick = async () => {
+      const res = await fetch('/optimize', { method: 'POST' });
+      const data = await res.json();
+      document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+    };
+  </script>
+</body>
+</html>
