@@ -1,0 +1,42 @@
+{
+  "status": "ok",
+  "tasks": [
+    {
+      "task_id": 1,
+      "picker_id": 1,
+      "order_id": "1",
+      "sku": "SKU001",
+      "bin_location": "A1",
+      "sequence": 1,
+      "status": "pending"
+    },
+    {
+      "task_id": 2,
+      "picker_id": 1,
+      "order_id": "3",
+      "sku": "SKU003",
+      "bin_location": "A1",
+      "sequence": 2,
+      "status": "pending"
+    },
+    {
+      "task_id": 3,
+      "picker_id": 1,
+      "order_id": "4",
+      "sku": "SKU004",
+      "bin_location": "C3",
+      "sequence": 3,
+      "status": "pending"
+    },
+    {
+      "task_id": 4,
+      "picker_id": 2,
+      "order_id": "2",
+      "sku": "SKU002",
+      "bin_location": "B2",
+      "sequence": 4,
+      "status": "pending"
+    }
+  ],
+  "confidence": 0.75
+}
